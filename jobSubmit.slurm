@@ -11,10 +11,11 @@
 #SBATCH --cpus-per-task=20          # multithreads
 #SBATCH --mem=30000M                  #Request 2560MB (2.5GB) per node
 #SBATCH --output=imagenet.%j      #Send stdout/err to "Example4Out.[jobID]"
-#SBATCH --gres=gpu:2                 #Request 1 GPU per node can be 1 or 2
+#SBATCH --gres=gpu:1                 #Request 1 GPU per node can be 1 or 2
 #SBATCH --partition=gpu
 #SBATCH --exclusive
 #SBATCH --wait-all-nodes=1
+#SBATCH --reservation=benchmarking
 
 MASTER=`/bin/hostname -s`
 SLAVES=`scontrol show hostnames $SLURM_JOB_NODELIST | grep -v $MASTER`
@@ -29,11 +30,13 @@ echo $HOSTLIST
 MPORT=`ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{5,5\}" | sort | uniq | shuf -n1`
 echo "MPORT is ${MPORT}"
 
-NPROCS_PER_NODE=2
+NPROCS_PER_NODE=1
 SLURM_JOB_NUM_NODES=2
 
+module load WebProxy
 module load Anaconda3/2020.07
-source activate /scratch/user/xueq13/.conda/envs/pytorch
+# source activate /scratch/user/xueq13/.conda/envs/pytorch
+source activate /scratch/user/happidence1/.conda/envs/distributed_slurm
 
 #Launch the pytorch processes, first on master (first in $HOSTLIST) then
 #on the slaves
